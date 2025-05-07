@@ -1,0 +1,130 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f1f4f9;
+    margin: 0;
+    padding: 40px;
+    color: #333;
+}
+
+.form-container {
+    background-color: #fff;
+    padding: 40px;
+    max-width: 800px;
+    margin: auto;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+h2 {
+    text-align: center;
+    color: #222;
+    margin-bottom: 20px;
+}
+
+h3 {
+    border-bottom: 2px solid #ddd;
+    padding-bottom: 5px;
+    margin-top: 40px;
+    margin-bottom: 20px;
+    color: #444;
+}
+
+label {
+    font-weight: bold;
+}
+
+input[type="text"], textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0 20px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.card {
+    background-color: #fdfdfd;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.pregunta {
+    margin-bottom: 10px;
+}
+
+.pregunta label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: normal;
+}
+
+.escala {
+    display: flex;
+    justify-content: space-between;
+    max-width: 360px;
+    margin-top: 5px;
+    flex-wrap: wrap;
+}
+
+.escala label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 13px;
+    flex: 1;
+    min-width: 50px;
+}
+
+.escala input[type="radio"] {
+    margin-bottom: 4px;
+}
+
+button {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    background-color: #0078D4;
+    color: white;
+    font-size: 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 30px;
+}
+
+button:hover {
+    background-color: #005a9e;
+}
+
+.flash {
+    background-color: #ffe6e6;
+    padding: 12px;
+    border-left: 5px solid red;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    color: #b10000;
+    font-weight: bold;
+}
+
+@media (max-width: 600px) {
+    .form-container {
+        padding: 20px;
+    }
+
+    .escala {
+        justify-content: space-around;
+    }
+
+    .escala label {
+        font-size: 12px;
+        margin-bottom: 10px;
+    }
+
+    button {
+        font-size: 15px;
+        padding: 14px;
+    }
+}
