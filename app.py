@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, flash, make_response, session, url_for
-import sqlite3
+import psycopg2
 import os
 from datetime import datetime, timedelta
 import statistics
@@ -8,27 +8,7 @@ import uuid
 app = Flask(__name__)
 app.secret_key = 'clave-secreta-para-flash-messages'
 
-DB_FILE = 'respuestas_360.db'
-
-# Crear base de datos si no existe
-def init_db():
-    with sqlite3.connect(DB_FILE) as conn:
-        cursor = conn.cursor()
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS respuestas (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id TEXT,
-                semana INTEGER,
-                fecha TEXT,
-                p1 INTEGER, p2 INTEGER, p3 INTEGER, p4 INTEGER, p5 INTEGER,
-                p6 INTEGER, p7 INTEGER, p8 INTEGER, p9 INTEGER, p10 INTEGER,
-                p11 INTEGER, p12 INTEGER, p13 INTEGER,
-                comentario TEXT
-            )
-        ''')
-        conn.commit()
-
-init_db()
+DATABASE_URL = os.environ.get('DATABASE_URL')
 
 preguntas_texto = [
     'La comunicación en cocina fue clara y respetuosa.',
@@ -71,9 +51,9 @@ def enviar():
     user_id = request.cookies.get('user_id')
     fecha_envio = datetime.now().strftime('%Y-%m-%d')
 
-    with sqlite3.connect(DB_FILE) as conn:
+    with psycopg2.connect(DATABASE_URL) as conn:
         cursor = conn.cursor()
-        cursor.execute("SELECT fecha FROM respuestas WHERE user_id = ? ORDER BY fecha DESC LIMIT 1", (user_id,))
+        cursor.execute("SELECT fecha FROM respuestas WHERE user_id = %s ORDER BY fecha DESC LIMIT 1", (user_id,))
         fila = cursor.fetchone()
 
         if fila:
@@ -88,7 +68,7 @@ def enviar():
             INSERT INTO respuestas (
                 user_id, semana, fecha, p1, p2, p3, p4, p5,
                 p6, p7, p8, p9, p10, p11, p12, p13, comentario
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         ''', (
             user_id, semana_actual, fecha_envio,
             request.form.get('p1'), request.form.get('p2'), request.form.get('p3'),
@@ -122,7 +102,7 @@ def resetear():
     if not session.get('admin'):
         flash('Debes iniciar sesión como administrador.')
         return redirect('/login')
-    with sqlite3.connect(DB_FILE) as conn:
+    with psycopg2.connect(DATABASE_URL) as conn:
         cursor = conn.cursor()
         cursor.execute("DELETE FROM respuestas")
         conn.commit()
@@ -154,12 +134,12 @@ def resultados():
     promedios_totales = [0] * 13
     total_global = 0
 
-    with sqlite3.connect(DB_FILE) as conn:
+    with psycopg2.connect(DATABASE_URL) as conn:
         cursor = conn.cursor()
         cursor.execute("""
             SELECT fecha, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, comentario
             FROM respuestas
-            WHERE semana = ?
+            WHERE semana = %s
             ORDER BY fecha DESC
         """, (semana_filtrada,))
         respuestas_detalladas = cursor.fetchall()
@@ -206,12 +186,12 @@ def exportar_csv():
     writer = csv.writer(si)
     writer.writerow(['Fecha'] + categorias + ['Comentario'])
 
-    with sqlite3.connect(DB_FILE) as conn:
+    with psycopg2.connect(DATABASE_URL) as conn:
         cursor = conn.cursor()
         cursor.execute("""
             SELECT fecha, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, comentario
             FROM respuestas
-            WHERE semana = ?
+            WHERE semana = %s
             ORDER BY fecha DESC
         """, (semana,))
         for fila in cursor.fetchall():
@@ -225,5 +205,3 @@ def exportar_csv():
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
-    # app.run(debug=True)  # Descomentar para modo de depuración
-
